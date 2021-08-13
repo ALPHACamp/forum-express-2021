@@ -20,7 +20,8 @@
   },
   "homepage": "https://github.com/ALPHACamp/forum-express-2021#readme",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "express-handlebars": "^5.3.3"
   },
   "directories": {
     "test": "tests"
