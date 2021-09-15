@@ -1,3 +1,5 @@
+const path = require('path')
+
 const express = require('express')
 const handlebars = require('express-handlebars')
 const flash = require('connect-flash')
@@ -14,9 +16,7 @@ const app = express()
 const port = process.env.PORT || 3000
 const SESSION_SECRET = 'secret'
 
-// 註冊 Handlebars 樣板引擎，並指定副檔名為 .hbs
 app.engine('hbs', handlebars({ extname: '.hbs', helpers: handlebarsHelpers }))
-// 設定使用 Handlebars 做為樣板引擎
 app.set('view engine', 'hbs')
 
 app.use(express.urlencoded({ extended: true }))
@@ -26,6 +26,7 @@ app.use(passport.session())
 
 app.use(flash())
 app.use(methodOverride('_method'))
+app.use('/upload', express.static(path.join(__dirname, 'upload')))
 
 app.use((req, res, next) => {
   res.locals.success_messages = req.flash('success_messages')
