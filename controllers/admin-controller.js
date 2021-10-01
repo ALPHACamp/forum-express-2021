@@ -1,4 +1,4 @@
-const { Restaurant } = require('../models')
+const { Restaurant, User } = require('../models')
 const { localFileHandler } = require('../helpers/file-helpers')
 
 const adminController = {
@@ -92,8 +92,28 @@ const adminController = {
       })
       .then(() => res.redirect('/admin/restaurants'))
       .catch(err => next(err))
-  }
+  },
+  getUsers: (req, res, next) => {
+    return User.findAll({
+      raw: true,
+      nest: true
+    })
+      .then(users => res.render('admin/users', { users }))
+      .catch(err => next(err))
+  },
+  patchUsers: (req, res, next) => {
+    return User.findByPk(req.params.id)
+      .then(user => {
+        if (!user) throw new Error("User didn't exist!")
 
+        return user.update({ isAdmin: !user.isAdmin })
+      })
+      .then(() => {
+        req.flash('success_messages', 'user was successfully to update')
+        res.redirect('/admin/users')
+      })
+      .catch(err => next(err))
+  }
 }
 
 module.exports = adminController
