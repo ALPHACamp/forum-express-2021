@@ -95,7 +95,7 @@ const adminController = {
       .catch(err => next(err))
   },
   deleteRestaurant: (req, res, next) => {
-    return Restaurant.findByPk(req.params.id)
+    Restaurant.findByPk(req.params.id)
       .then(restaurant => {
         if (!restaurant) throw new Error("Restaurant didn't exist!")
 
@@ -114,7 +114,7 @@ const adminController = {
       .catch(err => next(err))
   },
   patchUsers: (req, res, next) => {
-    return User.findByPk(req.params.id)
+    User.findByPk(req.params.id)
       .then(user => {
         if (!user) throw new Error("User didn't exist!")
 

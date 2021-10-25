@@ -40,7 +40,7 @@ const userController = {
   },
 
   getUser: (req, res, next) => {
-    return User.findByPk(req.params.id, {
+    User.findByPk(req.params.id, {
       include: [
         { model: Comment, include: Restaurant }
       ]
