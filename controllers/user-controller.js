@@ -42,7 +42,10 @@ const userController = {
   getUser: (req, res, next) => {
     User.findByPk(req.params.id, {
       include: [
-        { model: Comment, include: Restaurant }
+        { model: Comment, include: Restaurant },
+        { model: Restaurant, as: 'FavoritedRestaurants' },
+        { model: User, as: 'Followers' },
+        { model: User, as: 'Followings' }
       ]
     })
       .then(user => {
@@ -60,8 +63,10 @@ const userController = {
           return acc
         }, [])
 
+        const isFollowed = req.user.Followings.some(d => d.id === user.id)
         res.render('users/profile', {
-          profile: user
+          profile: user,
+          isFollowed
         })
       })
       .catch(err => next(err))
