@@ -18,6 +18,6 @@ router.get('/users', adminController.getUsers)
 
 router.get('/categories', categoryController.getCategories)
 
-router.get('', (req, res) => res.redirect('/admin/restaurants'))
+router.get('/', (req, res) => res.redirect('/admin/restaurants'))
 
 module.exports = router
