@@ -39,7 +39,8 @@
 </div>
 
 <div class="row">
-  <div class="col-md-4">
+  {{!-- 非本次作業指定內容 --}}
+  {{!-- <div class="col-md-4">
     <div class="card">
       <div class="card-header">
         <strong>{{profile.Followings.length}}</strong> followings (追蹤者)
@@ -77,15 +78,15 @@
         {{/each}}
       </div>
     </div>
-  </div>
-  <div class="col-md-8">
+  </div> --}}
+  <div class="col-md-12 ">
     <div class="card">
       <div class="card-header">
         <strong>{{profile.commentedRestaurants.length}}</strong> 已評論餐廳
       </div>
       <div class="card-body">
         {{#each profile.commentedRestaurants}}
-          <a href="/restaurants/{{this.id}}">
+          <a href="/restaurants/{{this.id}}" class="text-decoration-none">
             <img src={{this.image}} width="60" height="60" class="avatar" style="transition: opacity 0.5s; opacity:0;"
               onload="this.style.opacity=1;" />
           </a>
@@ -93,7 +94,8 @@
       </div>
     </div>
     <br />
-    <div class="card">
+    {{!-- 非本次作業指定內容 --}}
+    {{!-- <div class="card">
       <div class="card-header">
         <strong>{{profile.FavoritedRestaurants.length}}</strong> 收藏的餐廳
       </div>
@@ -105,6 +107,6 @@
           </a>
         {{/each}}
       </div>
-    </div>
+    </div> --}}
   </div>
 </div>
