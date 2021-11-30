@@ -42,17 +42,17 @@ const userController = {
   getUser: (req, res, next) => {
     return User.findByPk(req.params.id, {
       include: [
-        { model: Comment, include: Restaurant }
+        { model: Comment, include: Restaurant },
+        { model: Restaurant, as: 'FavoritedRestaurants' },
+        { model: User, as: 'Followers' },
+        { model: User, as: 'Followings' }
       ]
     })
       .then(user => {
         if (!user) throw new Error("User didn't exist!")
 
-        // sequelize issues: use "raw:true" will broken 1:many relationships
-        // https://github.com/sequelize/sequelize/issues/4973
         user = user.toJSON()
 
-        // arr.reduce(callback[accumulator, currentValue, currentIndex, array], initialValue)
         user.commentedRestaurants = user.Comments.reduce((acc, c) => {
           if (!acc.some(r => r.id === c.restaurantId)) {
             acc.push(c.Restaurant)
@@ -60,8 +60,10 @@ const userController = {
           return acc
         }, [])
 
+        const isFollowed = req.user.Followings.some(d => d.id === user.id)
         res.render('users/profile', {
-          profile: user
+          profile: user,
+          isFollowed
         })
       })
       .catch(err => next(err))
