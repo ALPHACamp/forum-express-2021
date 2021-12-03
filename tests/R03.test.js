@@ -3,12 +3,12 @@ const request = require('supertest')
 const sinon = require('sinon')
 const should = chai.should()
 
-const helpers = require('../_helpers');
+const helpers = require('../helpers/auth-helpers');
 
 const { createModelMock, createControllerProxy, mockRequest, mockResponse } = require('../helpers/unitTestHelpers');
 
-describe('# R02', () => {
-  describe('# R02: 建立 User Profile', function () {
+describe('# R03', () => {
+  describe('# R03: 建立 User Profile', function () {
     context('# [瀏覽 Profile]', () => {
       // 前置準備
       before(() => {
@@ -27,7 +27,7 @@ describe('# R02', () => {
         })
 
         // 修改 userController 中的資料庫連線設定，由連向真實的資料庫 -> 改為連向模擬的 User table
-        this.userController = createControllerProxy('../controllers/userController', { User: this.UserMock })
+        this.userController = createControllerProxy('../controllers/user-controller', { User: this.UserMock })
       })
 
       // 開始測試
@@ -42,7 +42,7 @@ describe('# R02', () => {
         // toggleAdmin 執行完畢後，應呼叫 res.render
         // res.render 的第 1 個參數要是 'profile' 
         // res.render 的第 2 個參數要是 user，其 name 屬性的值應是 'admin'
-        res.render.getCall(0).args[0].should.equal('profile')
+        res.render.getCall(0).args[0].should.equal('user/profile')
         res.render.getCall(0).args[1].user.name.should.equal('admin')
       })
       
@@ -72,7 +72,7 @@ describe('# R02', () => {
         })
 
         // 連向模擬的 User table
-        this.userController = createControllerProxy('../controllers/userController', { User: this.UserMock })
+        this.userController = createControllerProxy('../controllers/user-controller', { User: this.UserMock })
       })
 
       it(' GET /users/:id/edit ', async () => {
@@ -86,7 +86,7 @@ describe('# R02', () => {
         // editUser 執行完畢後，應呼叫 res.render
         // res.render 的第 1 個參數要是 'edit' 
         // res.render 的第 2 個參數要是 user，其 name 屬性的值應是 'admin'
-        res.render.getCall(0).args[0].should.equal('edit')
+        res.render.getCall(0).args[0].should.equal('user/edit')
         res.render.getCall(0).args[1].user.name.should.equal('admin')
       })
 
@@ -117,7 +117,7 @@ describe('# R02', () => {
         )
 
         // 連向模擬的 User table
-        this.userController = createControllerProxy('../controllers/userController', { User: this.UserMock })
+        this.userController = createControllerProxy('../controllers/user-controller', { User: this.UserMock })
       })
 
       it(' PUT /users/:id ', async () => {
@@ -141,7 +141,7 @@ describe('# R02', () => {
         // 將假資料撈出，比對確認有成功修改到
         const user = await this.UserMock.findOne({ where: { id: 1 } })
         user.name.should.equal('admin2')
-        user.email.should.equal('admin_test@gmail.com')
+        // user.email.should.equal('admin_test@gmail.com') 待移除
       })
 
       after(async () => {
