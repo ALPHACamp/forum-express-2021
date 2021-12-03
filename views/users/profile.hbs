@@ -39,53 +39,14 @@
 </div>
 
 <div class="row">
-  <div class="col-md-4">
-    <div class="card">
-      <div class="card-header">
-        <strong>{{profile.Followings.length}}</strong> followings (追蹤者)
-      </div>
-      <div class="card-body">
-        {{#each profile.Followings}}
-          <a href="/users/{{this.id}}">
-            {{#if this.image}}
-              <img src="{{this.image}}" width="60" height="60" class="avatar"
-                style="transition: opacity 0.5s; opacity:0;" onload="this.style.opacity=1;" />
-            {{else}}
-              <img src="https://via.placeholder.com/60" width="60" height="60" class="avatar"
-                style="transition: opacity 0.5s; opacity:0;" onload="this.style.opacity=1;" />
-            {{/if}}
-          </a>
-        {{/each}}
-      </div>
-    </div>
-    <br />
-    <div class="card">
-      <div class="card-header">
-        <strong>{{profile.Followers.length}}</strong> followers (追隨者)
-      </div>
-      <div class="card-body">
-        {{#each profile.Followers}}
-          <a href="/users/{{this.id}}">
-            {{#if this.image}}
-              <img src="{{this.image}}" width="60" height="60" class="avatar"
-                style="transition: opacity 0.5s; opacity:0;" onload="this.style.opacity=1;" />
-            {{else}}
-              <img src="https://via.placeholder.com/60" width="60" height="60" class="avatar"
-                style="transition: opacity 0.5s; opacity:0;" onload="this.style.opacity=1;" />
-            {{/if}}
-          </a>
-        {{/each}}
-      </div>
-    </div>
-  </div>
-  <div class="col-md-8">
+  <div class="col-md-12">
     <div class="card">
       <div class="card-header">
         <strong>{{profile.commentedRestaurants.length}}</strong> 已評論餐廳
       </div>
       <div class="card-body">
         {{#each profile.commentedRestaurants}}
-          <a href="/restaurants/{{this.id}}">
+          <a href="/restaurants/{{this.id}}" class="text-decoration-none">
             <img src={{this.image}} width="60" height="60" class="avatar" style="transition: opacity 0.5s; opacity:0;"
               onload="this.style.opacity=1;" />
           </a>
@@ -93,18 +54,6 @@
       </div>
     </div>
     <br />
-    <div class="card">
-      <div class="card-header">
-        <strong>{{profile.FavoritedRestaurants.length}}</strong> 收藏的餐廳
-      </div>
-      <div class="card-body">
-        {{#each profile.FavoritedRestaurants}}
-          <a href="/restaurants/{{this.id}}">
-            <img src="{{this.image}}" width="60" height="60" class="avatar" style="transition: opacity 0.5s; opacity:0;"
-              onload="this.style.opacity=1;" />
-          </a>
-        {{/each}}
-      </div>
-    </div>
+
   </div>
 </div>
