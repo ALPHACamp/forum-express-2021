@@ -56,7 +56,7 @@ describe('# R01', () => {
       })
 
       // 修改 adminController 中的資料庫連線設定，由連向真實的資料庫 -> 改為連向模擬的 User table
-      this.adminController = createControllerProxy('../controllers/adminController', { User: this.UserMock })
+      this.adminController = createControllerProxy('../controllers/admin-controller', { User: this.UserMock })
     })
     
     // 開始測試
@@ -76,7 +76,7 @@ describe('# R01', () => {
       })
     })
 
-    context('# [修改使用者權限] for admin', () => {
+    context('# [修改使用者權限] for root', () => {
       before(() => {
       // 製作假資料
       // 本 context 會用這筆資料進行測試
@@ -91,20 +91,20 @@ describe('# R01', () => {
         )
         
         // 將 adminController 中的 User db 取代成 User mock db
-        this.adminController = createControllerProxy('../controllers/adminController', { User: this.UserMock })
+        this.adminController = createControllerProxy('../controllers/admin-controller', { User: this.UserMock })
       })
 
-      it(' PUT /admin/users/:id/toggleAdmin ', async () => {
+      it(' PATCH /admin/users/:id ', async () => {
         // 模擬 request & response
-        const req = mockRequest({ params: { id: 1 } }) // 帶入 params.id = 1，對 PUT /admin/users/1/toggleAdmin 發出請求
+        const req = mockRequest({ params: { id: 1 } }) // 帶入 params.id = 1，對 PATCH /admin/users/1 發出請求
         const res = mockResponse()
 
-       // 測試作業指定的 adminController.toggleAdmin 函式
-        await this.adminController.toggleAdmin(req, res)
+       // 測試作業指定的 adminController.patchUser 函式
+        await this.adminController.patchUser(req, res)
 
         // toggleAdmin 正確執行的話，應呼叫 req.flash
         // req.flash 的參數應該要與下列字串一致
-        req.flash.calledWith('error_messages','禁止變更管理者權限').should.be.true
+        req.flash.calledWith('error_messages','禁止變更 root 權限').should.be.true
 
         // toggleAdmin 執行完畢後，應呼叫 res.redirect 並重新導向上一頁 
         res.redirect.calledWith('back').should.be.true
@@ -125,16 +125,16 @@ describe('# R01', () => {
           }
         )
         // 將 adminController 中的 User db 取代成 User mock db
-        this.adminController = createControllerProxy('../controllers/adminController', { User: this.UserMock })
+        this.adminController = createControllerProxy('../controllers/admin-controller', { User: this.UserMock })
       })
 
-      it(' PUT /admin/users/:id/toggleAdmin ', async () => {
+      it(' PATCH /admin/users/:id ', async () => {
         // 模擬 request & response
-        const req = mockRequest({ params: { id: 1 } }) // 帶入 params.id = 1，對 PUT /admin/users/1/toggleAdmin 發出請求
+        const req = mockRequest({ params: { id: 1 } }) // 帶入 params.id = 1，對 PATCH /admin/users/1 發出請求
         const res = mockResponse()
 
-        // 測試作業指定的 adminController.toggleAdmin 函式
-        await this.adminController.toggleAdmin(req, res)
+        // 測試作業指定的 adminController.patchUser 函式
+        await this.adminController.patchUser(req, res)
 
         // toggleAdmin 正確執行的話，應呼叫 req.flash 
         // req.flash 的參數應與下列字串一致
