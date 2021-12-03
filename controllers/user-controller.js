@@ -46,7 +46,7 @@ const userController = {
       ]
     })
       .then(user => {
-        if (!user) throw new Error("User didn't exist!")
+        if (!user) throw new Error('使用者不存在')
 
         // sequelize issues: use "raw:true" will broken 1:many relationships
         // https://github.com/sequelize/sequelize/issues/4973
@@ -69,7 +69,7 @@ const userController = {
   editUser: (req, res, next) => {
     User.findByPk(req.params.id)
       .then(user => {
-        if (!user) throw new Error("User didn't exist!")
+        if (!user) throw new Error('使用者不存在')
 
         res.render('users/edit', { user: user.toJSON() })
       })
@@ -86,14 +86,17 @@ const userController = {
       imgurFileHandler(file)
     ])
       .then(([user, filePath]) => {
-        if (!user) throw new Error("User didn't exist!")
+        if (!user) throw new Error('使用者不存在')
 
         return user.update({
           name: req.body.name,
           image: filePath || user.image
         })
       })
-      .then(() => res.redirect(`/users/${req.params.id}`))
+      .then(() => {
+        req.flash('success_messages', '使用者資料編輯成功')
+        res.redirect(`/users/${req.params.id}`)
+      })
       .catch(err => next(err))
   }
 }
