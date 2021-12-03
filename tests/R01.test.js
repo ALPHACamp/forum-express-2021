@@ -111,7 +111,7 @@ describe('# R01', () => {
       })
     })
 
-    context('# [修改使用者權限] for user', () => {
+    context('# [修改使用者權限] for user (user -> admin)', () => {
       before(() => {
         // 製作假資料
         // 本 context 會用這筆資料進行測試
@@ -146,6 +146,45 @@ describe('# R01', () => {
         // 將假資料撈出，比對確認有成功修改到
         const user = await this.UserMock.findOne({ where: { id: 1 } })
         user.isAdmin.should.equal(true)
+      })
+    })
+
+
+    context('# [修改使用者權限] for user (admin -> user)', () => {
+      before(() => {
+        // 製作假資料
+        // 本 context 會用這筆資料進行測試
+        this.UserMock = createModelMock(
+          'User',
+          {
+            id: 2,
+            email: 'user2@example.com',
+            name: 'user2',
+            isAdmin: true // 是管理者
+          }
+        )
+        // 將 adminController 中的 User db 取代成 User mock db
+        this.adminController = createControllerProxy('../controllers/admin-controller', { User: this.UserMock })
+      })
+
+      it(' PATCH /admin/users/:id ', async () => {
+        // 模擬 request & response
+        const req = mockRequest({ params: { id: 2 } }) // 帶入 params.id = 2，對 PATCH /admin/users/2 發出請求
+        const res = mockResponse()
+
+        // 測試作業指定的 adminController.patchUser 函式
+        await this.adminController.patchUser(req, res)
+
+        // toggleAdmin 正確執行的話，應呼叫 req.flash 
+        // req.flash 的參數應與下列字串一致
+        req.flash.calledWith('success_messages','使用者權限變更成功').should.be.true
+        // toggleAdmin 執行完畢後，應呼叫 res.redirect 並重新導向 /admin/users
+        res.redirect.calledWith('/admin/users').should.be.true
+
+        // toggleAmin 執行完畢後，假資料中 id:2 使用者的應該要是 isAdmin：true
+        // 將假資料撈出，比對確認有成功修改到
+        const user = await this.UserMock.findOne({ where: { id: 2 } })
+        user.isAdmin.should.equal(false)
       })
     })
   })
