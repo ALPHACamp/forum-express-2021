@@ -3,10 +3,10 @@ const request = require('supertest')
 const sinon = require('sinon')
 const should = chai.should()
 
-const helpers = require('../helpers')
+const helpers = require('../helpers/auth-helpers')
 const { createModelMock, createControllerProxy, mockRequest, mockResponse } = require('../helpers/unitTestHelpers');
 
-describe('# R03: 餐廳資訊整理：Dashboard', function () {
+describe('# R02: 餐廳資訊整理：Dashboard', function () {
   context('# [Q1: Dashboard - 1 - controller / view / route]', () => {
     before(async () => {
       // 製作假資料
@@ -32,7 +32,7 @@ describe('# R03: 餐廳資訊整理：Dashboard', function () {
       })
 
       // 連向模擬的 tables
-      this.restController = createControllerProxy('../controllers/restController', { 
+      this.restController = createControllerProxy('../controllers/restaurant-controller', { 
         User: this.UserMock, 
         Category: this.CategoryMock, 
         Restaurant: this.RestaurantMock,
@@ -45,7 +45,7 @@ describe('# R03: 餐廳資訊整理：Dashboard', function () {
       const req = mockRequest({ params: { id: 1 } }) // 帶入 params.id = 1，對 GET /restaurants/1/dashboard 發出請求
       const res = mockResponse()
       // 測試 restController.getDashBoard 函式
-      await this.restController.getDashBoard(req, res)
+      await this.restController.getDashboard(req, res)
 
       // getDashBoard 執行完畢後，應呼叫 res.render
       // res.render 的第 1 個參數要是 'dashboard'
