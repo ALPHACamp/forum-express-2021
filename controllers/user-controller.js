@@ -52,7 +52,6 @@ const userController = {
         // https://github.com/sequelize/sequelize/issues/4973
         user = user.toJSON()
 
-        // arr.reduce(callback[accumulator, currentValue, currentIndex, array], initialValue)
         user.commentedRestaurants = user.Comments.reduce((acc, c) => {
           if (!acc.some(r => r.id === c.restaurantId)) {
             acc.push(c.Restaurant)

@@ -3,9 +3,9 @@ const request = require('supertest')
 const sinon = require('sinon')
 const should = chai.should()
 
-const helpers = require('../helpers/auth-helpers');
 
-const { createModelMock, createControllerProxy, mockRequest, mockResponse } = require('../helpers/unitTestHelpers');
+const helpers = require('../helpers/auth-helpers')
+const { createModelMock, createControllerProxy, mockRequest, mockResponse, mockNext } = require('../helpers/unit-test-helper');
 
 describe('# R03', () => {
   describe('# R03: 建立 User Profile', function () {
@@ -35,14 +35,15 @@ describe('# R03', () => {
         // 模擬 request & response
         const req = mockRequest({ params: { id: 1 } }) // 帶入 params.id = 1，對 GET /users/1 發出請求
         const res = mockResponse()
+        const next = mockNext
 
         // 測試作業指定的 userController.getUser 函式
-        await this.userController.getUser(req, res)
+        await this.userController.getUser(req, res, next)
 
-        // toggleAdmin 執行完畢後，應呼叫 res.render
-        // res.render 的第 1 個參數要是 'profile' 
+        // getUser 執行完畢後，應呼叫 res.render
+        // res.render 的第 1 個參數要是 'users/profile' 
         // res.render 的第 2 個參數要是 user，其 name 屬性的值應是 'admin'
-        res.render.getCall(0).args[0].should.equal('user/profile')
+        res.render.getCall(0).args[0].should.equal('users/profile')
         res.render.getCall(0).args[1].user.name.should.equal('admin')
       })
       
@@ -79,14 +80,15 @@ describe('# R03', () => {
         // 模擬 request & response
         const req = mockRequest({ params: { id: 1 } }) // 帶入 params.id = 1，對 GET /users/1/edit 發出請求
         const res = mockResponse()
+        const next = mockNext
 
         // 測試作業指定的 adminController.editUser 函式
-        await this.userController.editUser(req, res)
+        await this.userController.editUser(req, res, next)
 
         // editUser 執行完畢後，應呼叫 res.render
         // res.render 的第 1 個參數要是 'edit' 
         // res.render 的第 2 個參數要是 user，其 name 屬性的值應是 'admin'
-        res.render.getCall(0).args[0].should.equal('user/edit')
+        res.render.getCall(0).args[0].should.equal('users/edit')
         res.render.getCall(0).args[1].user.name.should.equal('admin')
       })
 
@@ -124,24 +126,25 @@ describe('# R03', () => {
         // 模擬 request & response 
         // 對 PUT /users/1 發出 request，並夾帶 body.name = amdin2, body.email = admin_test@gmail.com
         const req = mockRequest({
+          user: {id: 1},
           params: { id: 1 },
-          body: { name: 'admin2', email: 'admin_test@gmail.com' },
+          body: { name: 'admin2' },
         }) 
         const res = mockResponse()
+        const next = mockNext
 
         // 測試作業指定的 userController.putUser 函式
-        await this.userController.putUser(req, res)
+        await this.userController.putUser(req, res, next)
 
         // putUser 正確執行的話，應呼叫 req.flash 
         // req.flash 的參數應與下列字串一致
         req.flash.calledWith('success_messages','使用者資料編輯成功').should.be.true
         // putUser 執行完畢後，應呼叫 res.redirect 並重新導向 /users/1
         res.redirect.calledWith('/users/1').should.be.true
-        // putUser 執行完畢後，id:1 使用者的 name 和 email 應該已被修改 
+        // putUser 執行完畢後，id:1 使用者的 name 應該已被修改 
         // 將假資料撈出，比對確認有成功修改到
         const user = await this.UserMock.findOne({ where: { id: 1 } })
         user.name.should.equal('admin2')
-        // user.email.should.equal('admin_test@gmail.com') 待移除
       })
 
       after(async () => {
