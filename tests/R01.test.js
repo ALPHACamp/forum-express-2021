@@ -3,7 +3,7 @@ const request = require('supertest')
 const should = chai.should()
 
 const app = require('../app')
-const { createModelMock, createControllerProxy, mockRequest, mockResponse } = require('../helpers/unitTestHelpers');
+const { createModelMock, createControllerProxy, mockRequest, mockResponse } = require('../helpers/unit-test-helpers');
 
 describe('# R01', () => {
   describe('登入測試: POST /signin', function(){
