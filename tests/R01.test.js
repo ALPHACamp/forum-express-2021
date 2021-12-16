@@ -3,7 +3,7 @@ const request = require('supertest')
 const should = chai.should()
 
 const app = require('../app')
-const { createModelMock, createControllerProxy, mockRequest, mockResponse } = require('../helpers/unit-test-helpers');
+const { createModelMock, createControllerProxy, mockRequest, mockResponse, mockNext } = require('../helpers/unit-test-helper');
 
 describe('# R01', () => {
   describe('登入測試: POST /signin', function(){
@@ -65,9 +65,10 @@ describe('# R01', () => {
         // 模擬 request & response
         const req = mockRequest() // 對 GET /admin/users 發出請求
         const res = mockResponse()
+        const next = mockNext
 
         // 測試作業指定的 adminController.getUsers 函式
-        await this.adminController.getUsers(req, res)
+        await this.adminController.getUsers(req, res, next)
 
         // getUser 執行完畢後，應呼叫 res.render
         // res.render 的第 2 個參數應是 users
@@ -96,11 +97,12 @@ describe('# R01', () => {
 
       it(' PATCH /admin/users/:id ', async () => {
         // 模擬 request & response
-        const req = mockRequest({ params: { id: 1 } }) // 帶入 params.id = 1，對 PATCH /admin/users/1 發出請求
+        const req = mockRequest({ params: { id: 1 } }) // 帶入 params.id = 1，對 PUT /admin/users/1/toggleAdmin 發出請求
         const res = mockResponse()
+        const next = mockNext
 
        // 測試作業指定的 adminController.patchUser 函式
-        await this.adminController.patchUser(req, res)
+        await this.adminController.patchUser(req, res, next)
 
         // toggleAdmin 正確執行的話，應呼叫 req.flash
         // req.flash 的參數應該要與下列字串一致
@@ -130,11 +132,12 @@ describe('# R01', () => {
 
       it(' PATCH /admin/users/:id ', async () => {
         // 模擬 request & response
-        const req = mockRequest({ params: { id: 1 } }) // 帶入 params.id = 1，對 PATCH /admin/users/1 發出請求
+        const req = mockRequest({ params: { id: 1 } }) // 帶入 params.id = 1，對 PUT /admin/users/1/toggleAdmin 發出請求
         const res = mockResponse()
+        const next = mockNext
 
         // 測試作業指定的 adminController.patchUser 函式
-        await this.adminController.patchUser(req, res)
+        await this.adminController.patchUser(req, res, next)
 
         // toggleAdmin 正確執行的話，應呼叫 req.flash 
         // req.flash 的參數應與下列字串一致
@@ -148,7 +151,6 @@ describe('# R01', () => {
         user.isAdmin.should.equal(true)
       })
     })
-
 
     context('# [修改使用者權限] for user (admin -> user)', () => {
       before(() => {
@@ -171,9 +173,10 @@ describe('# R01', () => {
         // 模擬 request & response
         const req = mockRequest({ params: { id: 2 } }) // 帶入 params.id = 2，對 PATCH /admin/users/2 發出請求
         const res = mockResponse()
+        const next = mockNext
 
         // 測試作業指定的 adminController.patchUser 函式
-        await this.adminController.patchUser(req, res)
+        await this.adminController.patchUser(req, res, next)
 
         // toggleAdmin 正確執行的話，應呼叫 req.flash 
         // req.flash 的參數應與下列字串一致
