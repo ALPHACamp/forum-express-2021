@@ -40,7 +40,7 @@ const userController = {
   },
 
   getUser: (req, res, next) => {
-    User.findByPk(req.params.id, {
+    return User.findByPk(req.params.id, {
       include: [
         { model: Comment, include: Restaurant },
         { model: Restaurant, as: 'FavoritedRestaurants' },
@@ -72,7 +72,7 @@ const userController = {
       .catch(err => next(err))
   },
   editUser: (req, res, next) => {
-    User.findByPk(req.params.id)
+    return User.findByPk(req.params.id)
       .then(user => {
         if (!user) throw new Error("User didn't exist!")
 
@@ -98,7 +98,10 @@ const userController = {
           image: filePath || user.image
         })
       })
-      .then(() => res.redirect(`/users/${req.params.id}`))
+      .then(() => {
+        req.flash('success_messages', '使用者資料編輯成功')
+        res.redirect(`/users/${req.params.id}`)
+      })
       .catch(err => next(err))
   },
   addFavorite: (req, res, next) => {

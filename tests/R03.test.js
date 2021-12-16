@@ -124,7 +124,7 @@ describe('# R03', () => {
 
       it(' PUT /users/:id ', async () => {
         // 模擬 request & response 
-        // 對 PUT /users/1 發出 request，並夾帶 body.name = amdin2, body.email = admin_test@gmail.com
+        // 對 PUT /users/1 發出 request，並夾帶 body.name = amdin2
         const req = mockRequest({
           user: {id: 1},
           params: { id: 1 },
