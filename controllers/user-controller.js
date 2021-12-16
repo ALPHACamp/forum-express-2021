@@ -156,7 +156,6 @@ const userController = {
       .then(([restaurant, like]) => {
         if (!restaurant) throw new Error("Restaurant didn't exist!")
         if (like) throw new Error('You have liked this restaurant!')
-
         return Like.create({
           userId: req.user.id,
           restaurantId
@@ -166,7 +165,7 @@ const userController = {
       .catch(err => next(err))
   },
   removeLike: (req, res, next) => {
-    Like.findOne({
+    return Like.destroy({
       where: {
         userId: req.user.id,
         restaurantId: req.params.restaurantId
@@ -175,7 +174,7 @@ const userController = {
       .then(like => {
         if (!like) throw new Error("You haven't liked this restaurant")
 
-        return like.destroy()
+        // return like.destroy()
       })
       .then(() => res.redirect('back'))
       .catch(err => next(err))
