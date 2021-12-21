@@ -1,9 +1,6 @@
 const chai = require('chai')
 const request = require('supertest')
-const sinon = require('sinon')
-const should = chai.should()
 
-const helpers = require('../helpers/auth-helpers')
 const { createModelMock, createControllerProxy, mockRequest, mockResponse, mockNext } = require('../helpers/unit-test-helper');
 
 describe('# R02: 餐廳資訊整理：Dashboard', function () {

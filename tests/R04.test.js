@@ -1,9 +1,5 @@
-const chai = require('chai')
-const request = require('supertest')
 const sinon = require('sinon')
-const should = chai.should()
 
-const db = require('../models')
 const helpers = require('../helpers/auth-helpers')
 const { createModelMock, createControllerProxy, mockRequest, mockResponse, mockNext } = require('../helpers/unit-test-helper')
 

@@ -1,6 +1,4 @@
-const chai = require('chai')
 const request = require('supertest')
-const should = chai.should()
 
 const app = require('../app')
 const { createModelMock, createControllerProxy, mockRequest, mockResponse, mockNext } = require('../helpers/unit-test-helper');
