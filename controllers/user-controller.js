@@ -152,7 +152,6 @@ const userController = {
     ])
       .then(([restaurant, like]) => {
         if (!restaurant) throw new Error("Restaurant didn't exist!")
-        console.log('like', like)
         if (like) throw new Error('You have liked this restaurant!')
 
         return Like.create({
