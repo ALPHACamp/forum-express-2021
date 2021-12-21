@@ -2,7 +2,7 @@ const { Category } = require('../models')
 
 const categoryController = {
   getCategories: (req, res, next) => {
-    Promise.all([
+    return Promise.all([
       Category.findAll({ raw: true }),
       req.params.id ? Category.findByPk(req.params.id, { raw: true }) : null
     ])
@@ -19,7 +19,7 @@ const categoryController = {
 
     if (!name) throw new Error('Category name is required!')
 
-    Category.create({ name })
+    return Category.create({ name })
       .then(() => res.redirect('/admin/categories'))
       .catch(err => next(err))
   },
@@ -28,7 +28,7 @@ const categoryController = {
 
     if (!name) throw new Error('Category name is required!')
 
-    Category.findByPk(req.params.id)
+    return Category.findByPk(req.params.id)
       .then(category => {
         if (!category) throw new Error("Category didn't exist!")
 
@@ -38,7 +38,7 @@ const categoryController = {
       .catch(err => next(err))
   },
   deleteCategory: (req, res, next) => {
-    Category.findByPk(req.params.id)
+    return Category.findByPk(req.params.id)
       .then(category => {
         if (!category) throw new Error("Category didn't exist!")
 

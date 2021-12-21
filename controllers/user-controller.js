@@ -9,7 +9,7 @@ const userController = {
   signUp: (req, res, next) => {
     if (req.body.password !== req.body.passwordCheck) throw new Error('Passwords do not match!')
 
-    User.findOne({ where: { email: req.body.email } })
+    return User.findOne({ where: { email: req.body.email } })
       .then(user => {
         if (user) throw new Error('Email already exists!')
 
@@ -40,34 +40,36 @@ const userController = {
   },
 
   getUser: async (req, res, next) => {
-    let user = await User.findByPk(req.params.id, {
+    return User.findByPk(req.params.id, {
       include: [
         { model: Comment, include: Restaurant },
         { model: Restaurant, as: 'FavoritedRestaurants' },
         { model: User, as: 'Followers' },
         { model: User, as: 'Followings' }
       ]
-    });
-
-    if (!user) throw new Error("User didn't exist!")
-
-    // sequelize issues: use "raw:true" will broken 1:many relationships
-    // https://github.com/sequelize/sequelize/issues/4973
-    user = user.toJSON()
-
-    // arr.reduce(callback[accumulator, currentValue, currentIndex, array], initialValue)
-    user.commentedRestaurants = user.Comments && user.Comments.reduce((acc, c) => {
-      if (!acc.some(r => r.id === c.restaurantId)) {
-        acc.push(c.Restaurant)
-      }
-      return acc
-    }, [])
-
-    const isFollowed = req.user && req.user.Followings.some(d => d.id === user.id)
-    res.render('users/profile', {
-      user,
-      isFollowed
     })
+      .then(user => {
+        if (!user) throw new Error("User didn't exist!")
+
+        // sequelize issues: use "raw:true" will broken 1:many relationships
+        // https://github.com/sequelize/sequelize/issues/4973
+        user = user.toJSON()
+
+        // arr.reduce(callback[accumulator, currentValue, currentIndex, array], initialValue)
+        user.commentedRestaurants = user.Comments && user.Comments.reduce((acc, c) => {
+          if (!acc.some(r => r.id === c.restaurantId)) {
+            acc.push(c.Restaurant)
+          }
+          return acc
+        }, [])
+
+        const isFollowed = req.user && req.user.Followings.some(d => d.id === user.id)
+        res.render('users/profile', {
+          user,
+          isFollowed
+        })
+      })
+      .catch(err => next(err))
   },
   editUser: (req, res, next) => {
     return User.findByPk(req.params.id)
@@ -177,7 +179,7 @@ const userController = {
       .catch(err => next(err))
   },
   getTopUsers: (req, res, next) => {
-    User.findAll({
+    return User.findAll({
       include: [{ model: User, as: 'Followers' }]
     })
       .then(users => {
@@ -195,7 +197,7 @@ const userController = {
   },
   addFollowing: (req, res, next) => {
     const { userId } = req.params
-    Promise.all([
+    return Promise.all([
       User.findByPk(userId),
       Followship.findOne({
         where: {
@@ -217,7 +219,7 @@ const userController = {
       .catch(err => next(err))
   },
   removeFollowing: (req, res, next) => {
-    Followship.findOne({
+    return Followship.findOne({
       where: {
         followerId: req.user.id,
         followingId: req.params.userId

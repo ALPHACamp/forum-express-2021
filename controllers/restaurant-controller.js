@@ -11,7 +11,7 @@ const restaurantController = {
     const limit = Number(req.query.limit) || DEFAULT_LIMIT
     const offset = getOffset(limit, page)
 
-    Promise.all([
+    return Promise.all([
       Restaurant.findAndCountAll({
         include: Category,
         where: {
@@ -43,7 +43,7 @@ const restaurantController = {
       })
   },
   getRestaurant: (req, res, next) => {
-    Restaurant.findByPk(req.params.id, {
+    return Restaurant.findByPk(req.params.id, {
       include: [
         Category,
         { model: Comment, include: User },
@@ -84,7 +84,7 @@ const restaurantController = {
       .catch(err => next(err))
   },
   getFeeds: (req, res, next) => {
-    Promise.all([
+    return Promise.all([
       Restaurant.findAll({
         limit: 10,
         order: [['createdAt', 'DESC']],
@@ -115,7 +115,6 @@ const restaurantController = {
       }]
     })
       .then(restaurants => {
-        //console.log('rest', restaurants)
         restaurants = restaurants.map(r => ({
           ...r.dataValues,
           description: r.dataValues.description.substring(0, 50),
