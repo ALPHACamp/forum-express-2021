@@ -11,26 +11,7 @@ const commentController = require('../controllers/comment-controller')
 
 const { generalErrorHandler } = require('../middleware/error-handler')
 const upload = require('../middleware/multer')
-const helpers = require('../helpers/auth-helpers')
-
-const authenticated = (req, res, next) => {
-  // if (req.isAuthenticated)
-  if (helpers.ensureAuthenticated(req)) {
-    return next()
-  }
-  res.redirect('/signin')
-}
-
-const authenticatedAdmin = (req, res, next) => {
-  // if (req.isAuthenticated)
-  if (helpers.ensureAuthenticated(req)) {
-    if (helpers.getUser(req).isAdmin) return next()
-
-    res.redirect('/')
-  } else {
-    res.redirect('/signin')
-  }
-}
+const {authenticated, authenticatedAdmin} = require('../middleware/auth')
 
 router.use('/admin', authenticatedAdmin, admin)
 
