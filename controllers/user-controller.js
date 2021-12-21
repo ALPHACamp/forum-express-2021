@@ -39,40 +39,38 @@ const userController = {
     res.redirect('/signin')
   },
 
-  getUser: (req, res, next) => {
-    User.findByPk(req.params.id, {
+  getUser: async (req, res, next) => {
+    let user = await User.findByPk(req.params.id, {
       include: [
         { model: Comment, include: Restaurant },
         { model: Restaurant, as: 'FavoritedRestaurants' },
         { model: User, as: 'Followers' },
         { model: User, as: 'Followings' }
       ]
+    });
+
+    if (!user) throw new Error("User didn't exist!")
+
+    // sequelize issues: use "raw:true" will broken 1:many relationships
+    // https://github.com/sequelize/sequelize/issues/4973
+    user = user.toJSON()
+
+    // arr.reduce(callback[accumulator, currentValue, currentIndex, array], initialValue)
+    user.commentedRestaurants = user.Comments && user.Comments.reduce((acc, c) => {
+      if (!acc.some(r => r.id === c.restaurantId)) {
+        acc.push(c.Restaurant)
+      }
+      return acc
+    }, [])
+
+    const isFollowed = req.user && req.user.Followings.some(d => d.id === user.id)
+    res.render('users/profile', {
+      user,
+      isFollowed
     })
-      .then(user => {
-        if (!user) throw new Error("User didn't exist!")
-
-        // sequelize issues: use "raw:true" will broken 1:many relationships
-        // https://github.com/sequelize/sequelize/issues/4973
-        user = user.toJSON()
-
-        // arr.reduce(callback[accumulator, currentValue, currentIndex, array], initialValue)
-        user.commentedRestaurants = user.Comments.reduce((acc, c) => {
-          if (!acc.some(r => r.id === c.restaurantId)) {
-            acc.push(c.Restaurant)
-          }
-          return acc
-        }, [])
-
-        const isFollowed = req.user.Followings.some(d => d.id === user.id)
-        res.render('users/profile', {
-          profile: user,
-          isFollowed
-        })
-      })
-      .catch(err => next(err))
   },
   editUser: (req, res, next) => {
-    User.findByPk(req.params.id)
+    return User.findByPk(req.params.id)
       .then(user => {
         if (!user) throw new Error("User didn't exist!")
 
@@ -86,7 +84,7 @@ const userController = {
     }
     const { file } = req
 
-    Promise.all([
+    return Promise.all([
       User.findByPk(req.params.id),
       imgurFileHandler(file)
     ])
@@ -98,7 +96,10 @@ const userController = {
           image: filePath || user.image
         })
       })
-      .then(() => res.redirect(`/users/${req.params.id}`))
+      .then(() => {
+        req.flash('success_messages', '使用者資料編輯成功')
+        res.redirect(`/users/${req.params.id}`)
+      })
       .catch(err => next(err))
   },
   addFavorite: (req, res, next) => {
@@ -114,6 +115,7 @@ const userController = {
     ])
       .then(([restaurant, favorite]) => {
         if (!restaurant) throw new Error("Restaurant didn't exist!")
+        console.log('favorite', favorite)
         if (favorite) throw new Error('You have favorited this restaurant!')
 
         return Favorite.create({
@@ -141,7 +143,7 @@ const userController = {
   },
   addLike: (req, res, next) => {
     const { restaurantId } = req.params
-    Promise.all([
+    return Promise.all([
       Restaurant.findByPk(restaurantId),
       Like.findOne({
         where: {
