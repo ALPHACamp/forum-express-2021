@@ -4,21 +4,26 @@ const sinon = require('sinon')
 
 const dbMock = new SequelizeMock()
 
-const createModelMock = (name, defaultValue, data, joinedTableName, sourceData) => {
+const createModelMock = (name, data, joinedTableName, sourceData) => {
+  const defaultValue = data[0];
   const mockModel = dbMock.define(name, defaultValue, {
     instanceMethods: {
-      update: (changes) => {
-        mockModel._defaults = {...changes}
+      update: function(changes) {
+        const objIndex = data.findIndex(d => d.id === this.get('id'))
+        data[objIndex] = {
+          ...data[objIndex],
+          ...changes
+        }
         return Promise.resolve()
       },
       destroy: function() {
         if(joinedTableName) {
-          console.log('joined', this.get('id'))
-          //const {userId, restaurantId} = queryOptions[0].where;
-          //const restaurant = sourceData.find(d => d.id === restaurantId)
-          //restaurant[joinedTableName] = restaurant[joinedTableName].filter(d => !(d.userId === userId)) 
+          const userId = this.get('userId')
+          const restaurantId = this.get('restaurantId')
+          const restaurant = sourceData.find(d => d.id === restaurantId)
+          restaurant[joinedTableName] = restaurant[joinedTableName].filter(d => !(d.userId === userId))
         } else {
-          data = data && data.filter(d => d.id !== this.get('id')) // remove
+          data = data && data.filter(d => d.userId !== this.get('userId') && d.restaurantId !== this.get('restaurantId')) // remove
         }
       }
     }
@@ -38,10 +43,9 @@ const createModelMock = (name, defaultValue, data, joinedTableName, sourceData) 
       if (query === 'upsert') {
         // 新增 joinTable 資料到模擬資料
         const {userId, restaurantId} = queryOptions[0];
-        const restData = data ? data : sourceData;
-        const restaurant = restData.find(d => d.id === restaurantId)
+        const restaurant = sourceData.find(d => d.id === restaurantId)
         restaurant && restaurant[joinedTableName].push({userId: userId});
-        data = [queryOptions[0]]
+        data.push(queryOptions[0])
         return Promise.resolve(data && data.map(d => mockModel.build(d)))
       } else if (query === 'findAll') {
         // 回傳模擬資料
@@ -50,12 +54,11 @@ const createModelMock = (name, defaultValue, data, joinedTableName, sourceData) 
         }
         return Promise.resolve( data ? data.map(d => mockModel.build(d)) : [])
       } else if (query === 'findOne') {
-        if (!data) {
-          return null;
-        }
+        const item = data.find(d => d.userId === queryOptions[0].where.userId && d.restaurantId === queryOptions[0].where.restaurantId)
+        if (!item) return null;
 
-        const item = data.find(d => d.id === queryOptions[0].where.userId)
-        return Promise.resolve(mockModel.build(item))
+        const result = mockModel.build(item)
+        return Promise.resolve(result)
       } else if (query === 'destroy') {
         // destroy 可以從 where 取得要刪除的資料
         // 因此就可以模擬將模擬資料中的資料刪除
@@ -83,6 +86,17 @@ const createModelMock = (name, defaultValue, data, joinedTableName, sourceData) 
           return mockModel.build([defaultValue]);
         }
         return Promise.resolve(data ? data.map(d => mockModel.build(d)) : [])
+      } else if (query === 'findOne') {
+        let item;
+        if (queryOptions[0].id) {
+          item = data.find(d => d.id === queryOptions[0].id)
+        } else {
+          item = data.find(d => d.userId === queryOptions[0].where.userId && d.restaurantId === queryOptions[0].where.restaurantId)
+        }
+        if (!item) return null;
+
+        const result = mockModel.build(item)
+        return Promise.resolve(result)
       } else if (query === 'destroy') {
         // destroy 可以從 where 取得要刪除的資料
         // 因此就可以模擬將模擬資料中的資料刪除

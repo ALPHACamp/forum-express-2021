@@ -19,12 +19,12 @@ describe('# R03', () => {
         this.getUser = sinon.stub(helpers, 'getUser').returns({ id: 1 })
        // 製作假資料
        // 本 context 會用這筆資料進行測試
-        this.UserMock = createModelMock('User', {
+        this.UserMock = createModelMock('User', [{
           id: 1,
           email: 'root@example.com',
           name: 'admin',
           isAdmin: false,
-        })
+        }])
 
         // 修改 userController 中的資料庫連線設定，由連向真實的資料庫 -> 改為連向模擬的 User table
         this.userController = createControllerProxy('../controllers/user-controller', { User: this.UserMock })
@@ -65,12 +65,12 @@ describe('# R03', () => {
 
         // 製作假資料
         // 本 context 會用這筆資料進行測試
-        this.UserMock = createModelMock('User', {
+        this.UserMock = createModelMock('User', [{
           id: 1,
           email: 'root@example.com',
           name: 'admin',
           isAdmin: false,
-        })
+        }])
 
         // 連向模擬的 User table
         this.userController = createControllerProxy('../controllers/user-controller', { User: this.UserMock })
@@ -110,12 +110,12 @@ describe('# R03', () => {
         // 本 context 會用這筆資料進行測試
         this.UserMock = createModelMock(
           'User',
-          {
+          [{
             id: 1,
             email: 'root@example.com',
             name: 'admin',
             isAdmin: false,
-          }
+          }]
         )
 
         // 連向模擬的 User table

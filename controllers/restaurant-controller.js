@@ -69,7 +69,7 @@ const restaurantController = {
       .catch(err => next(err))
   },
   getDashboard: (req, res, next) => {
-    Restaurant.findByPk(req.params.id, {
+    return Restaurant.findByPk(req.params.id, {
       include: [
         Category,
         { model: Comment, include: User },
@@ -115,6 +115,7 @@ const restaurantController = {
       }]
     })
       .then(restaurants => {
+        //console.log('rest', restaurants)
         restaurants = restaurants.map(r => ({
           ...r.dataValues,
           description: r.dataValues.description.substring(0, 50),
