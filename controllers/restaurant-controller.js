@@ -1,4 +1,4 @@
-const { Restaurant, Category, Comment, User, Sequelize } = require('../models')
+const { Restaurant, Category, Comment, User } = require('../models')
 const { getOffset, getPagination } = require('../helpers/pagination-helper')
 
 const restaurantController = {
@@ -11,7 +11,7 @@ const restaurantController = {
     const limit = Number(req.query.limit) || DEFAULT_LIMIT
     const offset = getOffset(limit, page)
 
-    Promise.all([
+    return Promise.all([
       Restaurant.findAndCountAll({
         include: Category,
         where: {
@@ -25,8 +25,8 @@ const restaurantController = {
       Category.findAll({ raw: true })
     ])
       .then(([restaurants, categories]) => {
-        const favoritedRestaurantsId = req.user.FavoritedRestaurants.map(fr => fr.id)
-        const likedRestaurantsId = req.user.LikedRestaurants.map(lr => lr.id)
+        const favoritedRestaurantsId = req.user && req.user.FavoritedRestaurants.map(fr => fr.id)
+        const likedRestaurantsId = req.user && req.user.LikedRestaurants.map(lr => lr.id)
 
         const data = restaurants.rows.map(r => ({
           ...r,
@@ -43,7 +43,7 @@ const restaurantController = {
       })
   },
   getRestaurant: (req, res, next) => {
-    Restaurant.findByPk(req.params.id, {
+    return Restaurant.findByPk(req.params.id, {
       include: [
         Category,
         { model: Comment, include: User },
@@ -69,7 +69,7 @@ const restaurantController = {
       .catch(err => next(err))
   },
   getDashboard: (req, res, next) => {
-    Restaurant.findByPk(req.params.id, {
+    return Restaurant.findByPk(req.params.id, {
       include: [
         Category,
         { model: Comment, include: User },
@@ -84,7 +84,7 @@ const restaurantController = {
       .catch(err => next(err))
   },
   getFeeds: (req, res, next) => {
-    Promise.all([
+    return Promise.all([
       Restaurant.findAll({
         limit: 10,
         order: [['createdAt', 'DESC']],
@@ -109,30 +109,21 @@ const restaurantController = {
       .catch(err => next(err))
   },
   getTopRestaurants: (req, res, next) => {
-    Restaurant.findAll({
-      attributes: {
-        include: [
-          [
-            Sequelize.literal(
-              '(select count(*) from Favorites where Favorites.restaurant_id = Restaurant.id)'
-            ),
-            'favoritesCount'
-          ]
-        ]
-      },
-      order: [
-        [Sequelize.literal('favoritesCount'), 'DESC']
-      ],
-      limit: 10,
-      raw: true,
-      nest: true
+    return Restaurant.findAll({
+      include: [{
+        model: User, as: 'FavoritedUsers'
+      }]
     })
       .then(restaurants => {
-        const result = restaurants.map(rest => ({
-          ...rest,
-          isFavorited: req.user.FavoritedRestaurants.some(f => f.id === rest.id)
+        restaurants = restaurants.map(r => ({
+          ...r.dataValues,
+          description: r.dataValues.description.substring(0, 50),
+          favoritedCount: r.FavoritedUsers.length,
+          isFavorited: req.user && req.user.FavoritedRestaurants.map(d => d.id).includes(r.id)
         }))
-        res.render('top-restaurants', { restaurants: result })
+        restaurants.sort((a, b) => b.favoritedCount - a.favoritedCount)
+        restaurants = restaurants.slice(0, 10)
+        res.render('top-restaurants', { restaurants })
       })
       .catch(err => next(err))
   }

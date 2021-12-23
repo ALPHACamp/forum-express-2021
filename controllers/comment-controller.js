@@ -7,7 +7,7 @@ const commentController = {
 
     if (!text) throw new Error('Comment text is required!')
 
-    Promise.all([
+    return Promise.all([
       User.findByPk(userId),
       Restaurant.findByPk(restaurantId)
     ])
@@ -27,7 +27,7 @@ const commentController = {
       .catch(err => next(err))
   },
   deleteComment: (req, res, next) => {
-    Comment.findByPk(req.params.id)
+    return Comment.findByPk(req.params.id)
       .then(comment => {
         if (!comment) throw new Error("Comment didn't exist!'")
 

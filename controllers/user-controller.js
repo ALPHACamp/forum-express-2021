@@ -9,7 +9,7 @@ const userController = {
   signUp: (req, res, next) => {
     if (req.body.password !== req.body.passwordCheck) throw new Error('Passwords do not match!')
 
-    User.findOne({ where: { email: req.body.email } })
+    return User.findOne({ where: { email: req.body.email } })
       .then(user => {
         if (user) throw new Error('Email already exists!')
 
@@ -39,8 +39,8 @@ const userController = {
     res.redirect('/signin')
   },
 
-  getUser: (req, res, next) => {
-    User.findByPk(req.params.id, {
+  getUser: async (req, res, next) => {
+    return User.findByPk(req.params.id, {
       include: [
         { model: Comment, include: Restaurant },
         { model: Restaurant, as: 'FavoritedRestaurants' },
@@ -56,23 +56,23 @@ const userController = {
         user = user.toJSON()
 
         // arr.reduce(callback[accumulator, currentValue, currentIndex, array], initialValue)
-        user.commentedRestaurants = user.Comments.reduce((acc, c) => {
+        user.commentedRestaurants = user.Comments && user.Comments.reduce((acc, c) => {
           if (!acc.some(r => r.id === c.restaurantId)) {
             acc.push(c.Restaurant)
           }
           return acc
         }, [])
 
-        const isFollowed = req.user.Followings.some(d => d.id === user.id)
+        const isFollowed = req.user && req.user.Followings.some(d => d.id === user.id)
         res.render('users/profile', {
-          profile: user,
+          user,
           isFollowed
         })
       })
       .catch(err => next(err))
   },
   editUser: (req, res, next) => {
-    User.findByPk(req.params.id)
+    return User.findByPk(req.params.id)
       .then(user => {
         if (!user) throw new Error("User didn't exist!")
 
@@ -86,7 +86,7 @@ const userController = {
     }
     const { file } = req
 
-    Promise.all([
+    return Promise.all([
       User.findByPk(req.params.id),
       imgurFileHandler(file)
     ])
@@ -98,12 +98,15 @@ const userController = {
           image: filePath || user.image
         })
       })
-      .then(() => res.redirect(`/users/${req.params.id}`))
+      .then(() => {
+        req.flash('success_messages', '使用者資料編輯成功')
+        res.redirect(`/users/${req.params.id}`)
+      })
       .catch(err => next(err))
   },
   addFavorite: (req, res, next) => {
     const { restaurantId } = req.params
-    Promise.all([
+    return Promise.all([
       Restaurant.findByPk(restaurantId),
       Favorite.findOne({
         where: {
@@ -125,7 +128,7 @@ const userController = {
       .catch(err => next(err))
   },
   removeFavorite: (req, res, next) => {
-    Favorite.findOne({
+    return Favorite.findOne({
       where: {
         userId: req.user.id,
         restaurantId: req.params.restaurantId
@@ -133,7 +136,6 @@ const userController = {
     })
       .then(favorite => {
         if (!favorite) throw new Error("You haven't favorited this restaurant")
-
         return favorite.destroy()
       })
       .then(() => res.redirect('back'))
@@ -141,7 +143,7 @@ const userController = {
   },
   addLike: (req, res, next) => {
     const { restaurantId } = req.params
-    Promise.all([
+    return Promise.all([
       Restaurant.findByPk(restaurantId),
       Like.findOne({
         where: {
@@ -163,7 +165,7 @@ const userController = {
       .catch(err => next(err))
   },
   removeLike: (req, res, next) => {
-    Like.findOne({
+    return Like.findOne({
       where: {
         userId: req.user.id,
         restaurantId: req.params.restaurantId
@@ -171,14 +173,13 @@ const userController = {
     })
       .then(like => {
         if (!like) throw new Error("You haven't liked this restaurant")
-
         return like.destroy()
       })
       .then(() => res.redirect('back'))
       .catch(err => next(err))
   },
   getTopUsers: (req, res, next) => {
-    User.findAll({
+    return User.findAll({
       include: [{ model: User, as: 'Followers' }]
     })
       .then(users => {
@@ -196,7 +197,7 @@ const userController = {
   },
   addFollowing: (req, res, next) => {
     const { userId } = req.params
-    Promise.all([
+    return Promise.all([
       User.findByPk(userId),
       Followship.findOne({
         where: {
@@ -218,7 +219,7 @@ const userController = {
       .catch(err => next(err))
   },
   removeFollowing: (req, res, next) => {
-    Followship.findOne({
+    return Followship.findOne({
       where: {
         followerId: req.user.id,
         followingId: req.params.userId
