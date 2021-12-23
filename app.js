@@ -1,7 +1,7 @@
 const path = require('path')
 
 const express = require('express')
-const handlebars = require('express-handlebars') // 引入 express-handlebars
+const handlebars = require('express-handlebars')
 const flash = require('connect-flash')
 const methodOverride = require('method-override')
 const session = require('express-session')
