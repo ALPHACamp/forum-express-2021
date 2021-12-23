@@ -11,7 +11,7 @@ const commentController = require('../controllers/comment-controller')
 
 const { generalErrorHandler } = require('../middleware/error-handler')
 const upload = require('../middleware/multer')
-const {authenticated, authenticatedAdmin} = require('../middleware/auth')
+const { authenticated, authenticatedAdmin } = require('../middleware/auth')
 
 router.use('/admin', authenticatedAdmin, admin)
 

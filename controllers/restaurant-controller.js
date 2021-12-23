@@ -1,4 +1,4 @@
-const { Restaurant, Category, Comment, User, Sequelize } = require('../models')
+const { Restaurant, Category, Comment, User } = require('../models')
 const { getOffset, getPagination } = require('../helpers/pagination-helper')
 
 const restaurantController = {
@@ -110,7 +110,7 @@ const restaurantController = {
   },
   getTopRestaurants: (req, res, next) => {
     return Restaurant.findAll({
-      include: [{ 
+      include: [{
         model: User, as: 'FavoritedUsers'
       }]
     })
